@@ -1,496 +1,93 @@
-# Go Web App — End-to-End Cloud & DevOps Deployment
+# Go Web Application - End-to-End DevOps & Cloud Deployment
 
-An end-to-end Cloud and DevOps project that takes a Go web application from local development to a containerized, Kubernetes-based, cloud-native deployment on **Amazon EKS**, with automated CI/CD using **GitHub Actions** and GitOps-based deployment using **Argo CD**.
+![Go](https://img.shields.io/badge/Go-1.24-00ADD8?style=flat&logo=go)
+![Docker](https://img.shields.io/badge/Docker-Containerized-2496ED?style=flat&logo=docker)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-Orchestration-326CE5?style=flat&logo=kubernetes)
+![AWS](https://img.shields.io/badge/AWS-EKS-FF9900?style=flat&logo=amazonaws)
+![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-CI-2088FF?style=flat&logo=githubactions)
+![Argo CD](https://img.shields.io/badge/Argo%20CD-GitOps-EF7B4D?style=flat&logo=argo)
 
-The project demonstrates the complete application delivery lifecycle — from containerization and Kubernetes orchestration to cloud deployment, automation, and GitOps.
+## 📌 Project Overview
+
+This project demonstrates an end-to-end DevOps workflow for a Go-based web application.
+
+The goal of the project is to take a simple Go web application and build a complete cloud-native deployment process around it.
+
+The application is first containerized using Docker and then deployed using Kubernetes. Kubernetes resources such as Deployments, Services, and Ingress are used to manage the application.
+
+Continuous Integration is implemented using GitHub Actions. The CI pipeline automatically builds and tests the application and creates and publishes the Docker image.
+
+Continuous Delivery is implemented using GitOps principles with Argo CD. The desired Kubernetes configuration is maintained in Git, and Argo CD synchronizes the Kubernetes cluster with the configuration stored in the repository.
+
+The application is ultimately deployed to Amazon Elastic Kubernetes Service (EKS), which provides the managed Kubernetes environment on AWS.
+
+Helm is used to package the Kubernetes application so that the same application can be deployed across multiple environments such as Development, QA, and Production using different configuration values.
+
+NGINX Ingress Controller is used to handle incoming HTTP traffic and route requests to the Kubernetes application. A Load Balancer provides external access to the application, and DNS can be used to map a domain name to the application endpoint.
 
 ---
 
-## 🚀 Project Overview
+# 🎯 Project Objectives
 
-The project starts with a Go web application and progressively builds a production-oriented DevOps workflow around it.
+The main objectives of this project are:
 
-### Deployment Flow
+- Containerize a Go application using Docker.
+- Use a multi-stage Docker build to create a smaller runtime image.
+- Deploy the containerized application to Kubernetes.
+- Create Kubernetes Deployment, Service, and Ingress resources.
+- Understand Kubernetes networking and application exposure.
+- Implement Continuous Integration using GitHub Actions.
+- Build and publish Docker images automatically.
+- Implement Continuous Delivery using GitOps.
+- Use Argo CD to synchronize Kubernetes resources from Git.
+- Create and configure an Amazon EKS cluster.
+- Deploy the application to AWS.
+- Package Kubernetes resources using Helm.
+- Understand how Helm can support multiple environments.
+- Configure an Ingress Controller.
+- Expose the application through a Load Balancer.
+- Understand DNS-based application access.
+- Build an end-to-end DevOps workflow.
+
+---
+
+# 🏗️ High-Level Architecture
+
+The project follows this overall workflow:
 
 ```text
-Go Web Application
-        │
-        ▼
-      Docker
-        │
-        ▼
-   Docker Hub
-        │
-        ▼
-    Kubernetes
-        │
-   ┌────┴─────┐
-   ▼          ▼
-Service    Ingress
-              │
-              ▼
-       NGINX Ingress
-              │
-              ▼
-          Helm
-              │
-              ▼
-          AWS EKS
-              │
-       ┌──────┴──────┐
-       ▼             ▼
-GitHub Actions    Argo CD
-    CI/CD          GitOps
-```
-
----
-
-## 🛠️ Technology Stack
-
-### Application
-
-* Go
-* HTML/CSS
-
-### Containerization
-
-* Docker
-* Docker Hub
-
-### Kubernetes
-
-* Kubernetes
-* Deployments
-* Services
-* NGINX Ingress Controller
-* Ingress
-* Helm
-
-### CI/CD & GitOps
-
-* GitHub Actions
-* CI/CD
-* Argo CD
-* GitOps
-
-### Cloud
-
-* AWS
-* Amazon EKS
-* AWS Load Balancing
-* DNS
-
-### Development Environment
-
-* Linux / WSL
-* Docker Desktop
-* Git
-* GitHub
-
----
-
-## 📁 Project Structure
-
-```text
-go-web-app-cloud-devops/
-│
-├── main.go
-├── go.mod
-├── main_test.go
-├── static/
-│   ├── home.html
-│   ├── about.html
-│   ├── contact.html
-│   ├── courses.html
-│   └── images/
-│
-├── Dockerfile
-├── .dockerignore
-│
-├── k8s/
-│   ├── deployment.yaml
-│   ├── service.yaml
-│   └── ingress.yaml
-│
-├── helm/
-│   └── go-web-app/
-│       ├── Chart.yaml
-│       ├── values.yaml
-│       └── templates/
-│
-├── .github/
-│   └── workflows/
-│       └── ...
-│
-├── argocd/
-│   └── application.yaml
-│
-└── README.md
-```
-
----
-
-# 🐳 Docker Containerization
-
-The Go application is containerized using a multi-stage Docker build.
-
-The Docker build process:
-
-1. Uses a Go image as the build environment.
-2. Downloads application dependencies.
-3. Compiles the Go application.
-4. Creates a lightweight runtime image.
-5. Copies the compiled application and required static files.
-6. Exposes the application on port `8080`.
-
-### Build the image
-
-```bash
-docker build -t go-web-app .
-```
-
-### Run the container
-
-```bash
-docker run -d -p 8080:8080 --name go-web-app go-web-app
-```
-
-The containerized application can then be accessed through:
-
-```text
-http://localhost:8080
-```
-
-The Docker image is also published to Docker Hub for Kubernetes deployment.
-
----
-
-# ☸️ Kubernetes Deployment
-
-The containerized application is deployed to Kubernetes using Kubernetes manifests.
-
-The deployment consists of:
-
-```text
-Deployment
-    │
-    ├── Pod 1
-    │
-    └── Pod 2
-```
-
-Two replicas are used to provide basic availability and allow Kubernetes to distribute application traffic between multiple Pods.
-
-### Deployment
-
-```bash
-kubectl apply -f k8s/deployment.yaml
-```
-
-Check the deployment:
-
-```bash
-kubectl get deployments
-```
-
-Check Pods:
-
-```bash
-kubectl get pods
-```
-
----
-
-# 🌐 Kubernetes Service
-
-A Kubernetes Service provides stable networking for the application Pods.
-
-```text
-                Service
-                   │
-          ┌────────┴────────┐
-          ▼                 ▼
-       Pod 1              Pod 2
-      :8080               :8080
-```
-
-The Service uses a selector to identify the Go application Pods.
-
-```bash
-kubectl apply -f k8s/service.yaml
-```
-
-Check the Service:
-
-```bash
-kubectl get services
-```
-
----
-
-# 🔀 NGINX Ingress
-
-NGINX Ingress Controller is used as the entry point for HTTP traffic into the Kubernetes application.
-
-The traffic flow is:
-
-```text
-Client
-   │
-   ▼
-NGINX Ingress Controller
-   │
-   ▼
-Ingress Resource
-   │
-   ▼
-Kubernetes Service
-   │
-   ├──► Pod 1
-   │
-   └──► Pod 2
-```
-
-The Kubernetes Ingress resource defines the routing rules, while the NGINX Ingress Controller implements those rules.
-
-```bash
-kubectl apply -f k8s/ingress.yaml
-```
-
----
-
-# 📦 Helm
-
-Helm is used to package and manage the Kubernetes application as a reusable Helm chart.
-
-Instead of maintaining completely independent Kubernetes configurations, Helm allows deployment configuration to be parameterized through `values.yaml`.
-
-Example:
-
-```text
-Helm Chart
-    │
-    ├── Deployment
-    ├── Service
-    └── Ingress
-```
-
-This makes it easier to manage different configurations and environments.
-
-### Helm installation
-
-```bash
-helm install go-web-app ./helm/go-web-app
-```
-
-The deployment can be upgraded using:
-
-```bash
-helm upgrade go-web-app ./helm/go-web-app
-```
-
----
-
-# ☁️ AWS EKS Deployment
-
-The application is deployed to **Amazon Elastic Kubernetes Service (EKS)**.
-
-AWS CLI is configured from the terminal to authenticate with the AWS account and interact with AWS resources.
-
-The application architecture on AWS is:
-
-```text
-User
- │
- ▼
-DNS
- │
- ▼
-AWS Load Balancer
- │
- ▼
-Amazon EKS
- │
- ▼
-NGINX Ingress
- │
- ▼
-Kubernetes Service
- │
- ├──► Pod 1
- │
- └──► Pod 2
-```
-
-EKS provides the managed Kubernetes control plane while Kubernetes manages the application workloads.
-
----
-
-# 🔄 CI/CD with GitHub Actions
-
-GitHub Actions is used to automate the application delivery pipeline.
-
-The CI/CD workflow automates tasks such as:
-
-```text
-Developer Push
-      │
-      ▼
-GitHub Repository
-      │
-      ▼
-GitHub Actions
-      │
-      ├── Build
-      ├── Test
-      ├── Docker Build
-      └── Docker Image Push
-             │
-             ▼
-         Docker Hub
-```
-
-This reduces manual steps involved in building and publishing new application versions.
-
----
-
-# 🔁 GitOps with Argo CD
-
-Argo CD is used to implement GitOps-based Kubernetes deployment.
-
-The Git repository acts as the source of truth for the desired Kubernetes state.
-
-```text
-GitHub Repository
-        │
-        ▼
-      Argo CD
-        │
-        ▼
-    Amazon EKS
-        │
-        ▼
- Kubernetes Resources
-```
-
-When the desired configuration in Git changes, Argo CD synchronizes the Kubernetes environment with the repository state.
-
-This provides declarative and automated application deployment.
-
----
-
-# 🔐 Configuration & Security
-
-The project follows basic DevOps security practices by:
-
-* Keeping credentials outside application source code.
-* Using GitHub Secrets for CI/CD credentials.
-* Using AWS IAM for AWS authentication and authorization.
-* Using Docker images rather than manually installing application dependencies on servers.
-* Keeping Kubernetes configuration declarative and version controlled.
-
----
-
-# 📊 Complete Architecture
-
-```text
-                       ┌─────────────────┐
-                       │      User       │
-                       └────────┬────────┘
-                                │
-                                ▼
-                            DNS / URL
-                                │
-                                ▼
-                       AWS Load Balancer
-                                │
-                                ▼
-                       ┌─────────────────┐
-                       │     AWS EKS     │
-                       │                 │
-                       │ NGINX Ingress   │
-                       └────────┬────────┘
-                                │
-                                ▼
-                       Kubernetes Service
-                                │
-                     ┌──────────┴──────────┐
-                     ▼                     ▼
-                  Pod 1                 Pod 2
-                     │                     │
-                     └──────────┬──────────┘
-                                ▼
-                         Go Application
-```
-
-### CI/CD and GitOps
-
-```text
-Developer
-    │
-    ▼
-GitHub
-    │
-    ▼
-GitHub Actions
-    │
-    ├── Test
-    ├── Build
-    ├── Docker Image
-    └── Push Image
-            │
-            ▼
-        Docker Hub
-
-GitHub
-    │
-    ▼
-  Argo CD
-    │
-    ▼
-   EKS
-    │
-    ▼
-Kubernetes
-```
-
----
-
-# 🎯 Key DevOps Concepts Demonstrated
-
-* Containerization with Docker
-* Multi-stage Docker builds
-* Docker image management
-* Kubernetes Deployments
-* Kubernetes Services
-* Kubernetes networking
-* NGINX Ingress
-* Helm-based deployments
-* Amazon EKS
-* AWS Load Balancing
-* CI/CD with GitHub Actions
-* GitOps with Argo CD
-* Declarative infrastructure and application configuration
-* Version-controlled deployment configuration
-
----
-
-# 📌 Project Highlights
-
-* Containerized a Go web application using Docker.
-* Deployed the application with multiple Kubernetes replicas.
-* Implemented Kubernetes Service-based networking.
-* Configured NGINX Ingress for HTTP routing.
-* Packaged Kubernetes resources using Helm.
-* Deployed Kubernetes workloads to Amazon EKS.
-* Automated application build and Docker image delivery using GitHub Actions.
-* Implemented GitOps-based Kubernetes synchronization using Argo CD.
-* Built an end-to-end cloud-native application delivery workflow.
-
----
-
-## 👨‍💻 Author
-
-**Himanshu Singh**
-
-GitHub: **[@Himanshucodess](https://github.com/Himanshucodess)**
+                         DEVELOPER
+                             |
+                             v
+                      GitHub Repository
+                             |
+              +--------------+--------------+
+              |                             |
+              v                             v
+       GitHub Actions                    GitOps
+              |                             |
+              v                             v
+        Build & Test                    Argo CD
+              |                             |
+              v                             v
+        Docker Build                  Amazon EKS
+              |                             |
+              v                             v
+         Docker Hub                  Kubernetes
+                                            |
+                               +------------+------------+
+                               |            |            |
+                               v            v            v
+                           Deployment    Service      Ingress
+                               |                         |
+                               v                         v
+                              Pods                Ingress Controller
+                                                         |
+                                                         v
+                                                  Load Balancer
+                                                         |
+                                                         v
+                                                        DNS
+                                                         |
+                                                         v
+                                                       USER
